@@ -1,12 +1,109 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="OmniWarden: Web3-native payroll and perks platform">
+  <title>OmniWarden</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+  <header>
+    <div class="logo">OmniWarden</div>
+    <button class="connect-wallet" onclick="connectWallet()">Connect Wallet</button>
+  </header>
+  <main>
+    <section class="hero">
+      <h1>Your Headline Here</h1>
+      <p>Your subheadline describing the Web3 payroll and perks platform.</p>
+      <button class="connect-wallet" onclick="connectWallet()">Get Started</button>
+    </section>
+    <section class="features">
+      <h2>Features</h2>
+      <div class="feature">
+        <h3>Feature 1</h3>
+        <p>Your description of feature 1 here.</p>
+      </div>
+      <div class="feature">
+        <h3>Feature 2</h3>
+        <p>Your description of feature 2 here.</p>
+      </div>
+      <div class="feature">
+        <h3>Feature 3</h3>
+        <p>Your description of feature 3 here.</p>
+      </div>
+    </section>
+    <section class="benefits">
+      <h2>Benefits</h2>
+      <p>Your benefit 1 description here.</p>
+      <p>Your benefit 2 description here.</p>
+      <p>Your benefit 3 description here.</p>
+    </section>
+    <section class="how-it-works">
+      <h2>How It Works</h2>
+      <ol>
+        <li>Your step 1 description here.</li>
+        <li>Your step 2 description here.</li>
+        <li>Your step 3 description here.</li>
+      </ol>
+    </section>
+    <section class="cta">
+      <h2>Ready to Start?</h2>
+      <button class="connect-wallet" onclick="connectWallet()">Connect Your Wallet</button>
+    </section>
+  </main>
+  <footer>
+    <p>© 2025 OmniWarden. All rights reserved.</p>
+    <ul>
+      <li><a href="#">Terms</a></li>
+      <li><a href="#">Privacy</a></li>
+    </ul>
+  </footer>
+  <script>
+    function connectWallet() {
+      console.log("Initiating wallet connection...");
+      alert("Connect your wallet to access the OmniWarden app.");
+    }
+  </script>
 </body>
 </html>
